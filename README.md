@@ -199,6 +199,28 @@ tar xf /home/chuzhi/study/etc_back_up.tar -C /home/chuzhi/a
 
 ## 七、Vim编辑器
 
+
+
+#### vim的基本配置
+
+  编辑VIM配置文件
+
+```bash
+vim /etc/vimrc
+```
+
+```bash
+#在最后添加以下内容
+
+set nu          // 设置显示行号
+set showmode    // 设置在命令行界面最下面显示当前模式等
+set ruler       // 在右下角显示光标所在的行数等信息
+set autoindent  // 设置每次单击Enter键后，光标移动到下一行时与上一行的起始字符对齐
+syntax on       // 即设置语法检测，当编辑C或者Shell脚本时，关键字会用特殊颜色显示
+```
+
+
+
 ### 1、vim的四种模式
 
 #### 1.1四种模式:
@@ -399,3 +421,96 @@ s 套接字⽂文件
 - x    进入目录
 - rx  显示目录内的文件名
 - wx 修改目录内的文件名
+
+
+
+### 7、权限管理
+
+
+
+#### 修改权限
+
+- chmod 修改⽂文件、⽬目录权限
+  - chmod u+x /tmp/testfile
+  - chmod 755 /tmp/testfile
+- chown
+- chgrp
+
+```bash
+[root@localhost test]# ls -l /usr/bin/passwd 
+-rwsr-xr-x. 1 root root 27856 Aug  9  2019 /usr/bin/passwd
+[root@localhost test]# ls -l /etc/shadow
+----------. 1 root root 1321 Mar  1 13:12 /etc/shadow
+```
+
+
+
+#### 特殊权限
+
+- SUID ⽤用于⼆二进制可执⾏行行⽂文件，执⾏行行命令时取得⽂文件属主权限
+  - 如 /usr/bin/passwd
+- SGID ⽤用于⽬目录，在该⽬目录下创建新的⽂文件和⽬目录，权限⾃自动更更改为该⽬目录的属组（==一般用于文件共享==）
+- SBIT ⽤用于⽬目录，该⽬目录下新建的⽂文件和⽬目录，仅 root 和⾃自⼰己可以删除
+  - 如 /tmp
+
+例子：
+
+```bash
+[root@localhost test]# ls -l /usr/bin/passwd 
+-rwsr-xr-x. 1 root root 27856 Aug  9  2019 /usr/bin/passwd
+[root@localhost test]# chmod 4755 bfile 
+[root@localhost test]# ls -l
+-rwsr-xr-x. 1 chuzhi chuzhi 0 Mar  1 13:05 bfile
+
+drwxrwxrwt. 20 root root 4096 Mar  1 13:25 /tmp
+[root@localhost test]# chmod 1777 test
+[root@localhost test]# ls -l
+drwsrwxrwt. 2 root   root   6 Mar  1 12:01 test
+
+```
+
+
+
+
+
+```bash
+[chuzhi@localhost test]$ ls -l
+total 0
+-rw-r--r--. 1 root root 0 Mar  1 12:01 afile
+drwxr-xr-x. 2 root root 6 Mar  1 12:01 test
+[root@localhost test]# chmod 400 afile 
+[root@localhost test]# ls -l
+total 0
+-r--------. 1 root root 0 Mar  1 12:01 afile
+drwxr-xr-x. 2 root root 6 Mar  1 12:01 test
+[root@localhost test]# echo 123
+123
+[root@localhost test]# echo 123 > afile 
+[root@localhost test]# cat afile 
+123
+
+```
+
+
+
+```bash
+[chuzhi@localhost test]$ touch bfile
+[chuzhi@localhost test]$ ls -l
+总用量 4
+-r--------. 1 root   root   4 3月   1 12:05 afile
+-rw-rw-r--. 1 chuzhi chuzhi 0 3月   1 13:05 bfile
+drwxr-xr-x. 2 root   root   6 3月   1 12:01 test
+[chuzhi@localhost test]$ chmod 020 bfile 
+[chuzhi@localhost test]$ ls -l
+总用量 4
+-r--------. 1 root   root   4 3月   1 12:05 afile
+-----w----. 1 chuzhi chuzhi 0 3月   1 13:05 bfile
+drwxr-xr-x. 2 root   root   6 3月   1 12:01 test
+[chuzhi@localhost test]$ id chuzhi
+uid=1000(chuzhi) gid=1000(chuzhi) 组=1000(chuzhi)
+[chuzhi@localhost test]$ echo 123 > bfile 
+-bash: bfile: 权限不够
+[chuzhi@localhost test]$ 
+
+```
+
