@@ -18,6 +18,18 @@
   在命令上 输入 `init 3` 命令 切换到dos界面 
 
   输入` init 5`命令 切换到图形界面
+  
+- CentOS下使用命令行Web浏览器Links
+
+  - ```bash
+    yum install links
+    ```
+
+  - ```bash
+    links www.baidu.com
+    ```
+
+    
 
 ## 二、登录
 
@@ -513,4 +525,181 @@ uid=1000(chuzhi) gid=1000(chuzhi) 组=1000(chuzhi)
 [chuzhi@localhost test]$ 
 
 ```
+
+
+
+## 九、网络管理
+
+
+
+### 1、网络状态查看
+
+#### 工具包
+
+##### net-tools  & iproute
+
+```bash
+#1.net-tools
+ifconfig
+route
+netstat
+
+#2.iproute2 (centos7主推命令)
+ip
+ss
+
+```
+
+
+
+##### ifconfig
+
+- eth0第一块网卡（网络接口）
+- 第一个网络接口可能叫下面的名字
+  - eno1 板载网卡
+  - ens33PCI-E网卡
+  - en0s3无法获取物理信息的PCI-E网卡
+  - centos 7 使用了一致性网络设备命名，以上都不匹配则使用eth0
+
+
+
+#### 网络接口命名修改
+
+- 网卡命名规则受 biosdevname 和 net。ifnames两个参数影响
+- 编辑 /etc/default/grub 文件。增加 biosdevname = 0 net.ifnames = 0
+- 更新grub
+  - 命令#：grub2-mkconfig -o /boot/grub2/grub.cfg
+- 重启
+  - reboot
+
+|       | biosdevname | net.names | 网卡名 |
+| ----- | ----------- | --------- | ------ |
+| 默认  | 0           | 1         | ens33  |
+| 组合1 | 1           | 0         | em1    |
+| 组合2 | 0           | 0         | eth0   |
+
+
+
+#### 查看网络情况
+
+- 查看网卡物理链接情况
+
+  ```bash
+  mii-tool eth0
+  ```
+
+
+
+#### 查看网关
+
+- 查看网关
+
+  ```bash
+  route -n
+  ```
+
+- 使用 -n 参数不解析主机名
+
+
+
+### 2、网络配置
+
+#### 常用命令
+
+```bash
+ifconfig<接口> <IP地址> [netmask 子网掩码]
+
+#启动
+ifup <接口>
+#关闭
+ifdown <接口>
+```
+
+
+
+#### 添加网关
+
+```bash
+route add defaut gw <网关>
+
+route add -host <指定IP> gw <网关>
+
+route add -net <指定网段> netmask <子网掩码> gw <网关IP>
+```
+
+
+
+- 添加网关(10.211.55.2)需要先删除原来的网关（10.211.55.1）
+
+  ```bash
+  route del default gw 10.211.55.
+  #查看网关
+  route -n
+  route add default gw 10.211.55.2
+  ```
+
+- 添加明细路由
+
+  ```bash
+  #设定为如果访问的主机为10.0.0.1时，把数据包发给10.211.55.1
+  route add -host 10.0.0.1 gw 10.211.55.1
+  ```
+
+- 指定访问网段
+
+  ```bash
+  #访问192.168.0.1时，通过10.211.55.3出去访问
+  route add -net 192.168.0.1 netmask 255.255.255.0 gw 10.211.55.3
+  ```
+
+  
+
+
+
+#### 网络命令合集：ip命令
+
+- ip addr ls
+
+  ```bash
+  ifconfig
+  ```
+
+-  ip link set dev eth0 up
+
+  ```bash
+  #启动eth0网卡
+  ifup eth0
+  ```
+
+- ip adds add 10.0.0.1/24 dev eth1
+
+  ```bash
+  #修改ip并同时修改子网掩码
+  ifconfig eth1 10.0.0.1 netmask 255.255.255.0
+  ```
+
+- ip route add 10.0.0/24 via 192.168.0.1
+
+  ```bash
+  route add -net 10.0.0.0 netmask 255.255.255.0 gw 192.168.0.1
+  ```
+
+例子：
+
+```bash
+#修改本季ip地址10.211.55.3为10.211.55.4
+ifconfig eth0 10.211.55.4
+```
+
+> 注意：如果是使用云主机，该条命令会立即生效。
+
+
+
+### 3、路由命令
+
+### 4、网络故障排除
+
+### 5、网络服务管理
+
+### 6、常用网络配置文件
 
