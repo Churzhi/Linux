@@ -697,9 +697,201 @@ ifconfig eth0 10.211.55.4
 
 ### 3、路由命令
 
+
+
 ### 4、网络故障排除
+
+#### 常用故障排除命令：
+
+```bash
+#
+ping
+#追踪路由
+traceroute
+#检查是否有数据包丢失
+mtr
+
+nslookup
+#检查端口连接状态
+telnet
+#分析数据包
+tcpdump
+
+netstat
+
+ss
+```
+
+- 追踪目标ip是否有数据包丢失
+
+  ```bash
+  #1表示长时间追踪
+  traceroute -w 1 www.baidu.com
+  ```
+
+- 更详细的追踪信息
+
+  ```bash
+  mtr
+  ```
+
+- 查看域名解析地址
+
+  ```bash
+  nslookup www.baidu.com
+  
+  Server:
+  Address:
+  ```
+
+- 当网络可以ping通还是无服务时，查看端口
+
+  ```bash
+  #linux先安装telnet
+  yum install telnet -y
+  
+  #检查当前主机到目标主机的80端口是否畅通
+  telnet www.baidu.com 80
+  
+  ```
+
+- 抓包查看
+
+  ```bash
+  #-i any 抓取所有网卡的数据包 -n解析为域名 prot 为80
+  tcpdump -i any -n port 80
+  #捕获主机 目标主机为10.0.0.1
+  tcpdump -i any -n host 10.0.0.1
+  #捕获主机 目标主机为10.0.0.1 端口为80
+  tcpdump -i any -n host 10.0.0.1 and prot 80
+  
+  #保存捕获信息
+  cpdump -i any -n host 10.0.0.1 and prot 80 -w/tmp/filename
+  ```
+
+- 数据包没有问题时，可能是服务的监听地址的问题
+
+  ```bash
+  #-n(显示ip地址，不显示域名) t(以tcp方式截取所需内容) p(端口对应的进程) l(tcp服务状态 listen)
+  netstat -ntpl
+  
+  ```
+
+- ss
+
+  ```bash
+  #与netstat相同，显示方式不同
+  ss -ntpl
+  ```
+
+  
+
+
 
 ### 5、网络服务管理
 
+#### 网络服务管理分为两种：
+
+##### SysV & systemd：
+
+```bash
+service network start|stop|restart
+
+chkconfig -list network
+
+systemclt list-unit-files NetworkManager.service
+
+systemclt start|stop|restart NetworkManger
+
+systemclt enable|disable NetworkManger
+
+```
+
+- 还原配置
+
+  ```bash
+  service network restart
+  ```
+
+- 查看当前配置
+
+  ```bash
+  service network status
+  ```
+
+- 查看网络服务
+
+  ```bash
+  systemclt list-unit-files NetworkManager.service
+  ```
+
+- 禁用两套命令的其中一个，只使用NetManager
+
+  ```bash
+  #当我们想要使用NetManager时
+  #先查看network
+  chkconfig --list network
+  
+  #如果看到2345是开启的,则关闭2345
+  chkconfig --level 2345 network off
+  
+  ```
+
+- 服务器一般使用systemctl
+
+  ```bash
+  #禁用NetManager
+  systemctl disable NetworkManager
+  #启用
+  systemctl enable NetworkManager
+  ```
+
+  
+
+
+
 ### 6、常用网络配置文件
+
+- 
+
+#### 网络配置文件：
+
+- Ifcfg-eth0  (网卡)
+- /etc/hosts
+
+##### 网卡配置文件：
+
+```bash
+cd /etc/sysconfig/network-scripts
+#显示网络接口的配置文件
+ls ifcfg-*
+
+vim ifcfg-eth0
+#ONBOOT="yes"表示开机时网卡被启用
+#配置完成之后使之生效
+service network restart
+systemctl restart NetworkManager.service
+```
+
+
+
+#### 查看主机名
+
+```bash
+hostname
+```
+
+#### 修改主机名
+
+```bash
+hostname c7.test11
+
+#使主机名永久生效
+hostnamectl set-hostname c7.test11
+#在服务器中依赖主机名工作，修改主机名也要修改相应配置文件
+vim /etc/hosts
+#把新设置的主机名写在127.0.0.1后面，即添加下面一行
+127.0.0.1 c7.test11
+
+```
 
