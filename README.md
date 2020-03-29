@@ -790,6 +790,8 @@ ss
 
 ### 5、网络服务管理
 
+
+
 #### 网络服务管理分为两种：
 
 ##### SysV & systemd：
@@ -852,12 +854,14 @@ systemclt enable|disable NetworkManger
 
 ### 6、常用网络配置文件
 
-- 
+
 
 #### 网络配置文件：
 
 - Ifcfg-eth0  (网卡)
 - /etc/hosts
+
+
 
 ##### 网卡配置文件：
 
@@ -881,6 +885,8 @@ systemctl restart NetworkManager.service
 hostname
 ```
 
+
+
 #### 修改主机名
 
 ```bash
@@ -894,4 +900,133 @@ vim /etc/hosts
 127.0.0.1 c7.test11
 
 ```
+
+
+
+## 十、软件安装
+
+
+
+#### 1、软件包管理器
+
+
+
+- 包管理器是方便软件安装、卸载、解决软件依赖关系的重要工具
+
+  - CentOS、RedHat使用 yum 包管理器，软件安装包格式为 rmp
+  - Debian、Ubuntu使用 apt 包管理器，软件安装包格式为 deb
+
+  
+
+#### 2、rpm包和rpm命令
+
+
+
+- rpm包格式
+
+  - ```bash
+    vim-common-7.4.10-5.el7.x86_64.rpm
+    #软件名称    软件版本 系统版本 平台
+    ```
+
+  
+
+- rmp命令
+
+  - ```bash
+    -q #查询软件包
+    -i #安装软件包
+    -e #卸载软件包
+    ```
+
+  - ```bash
+    #查看所有安装的软件包
+    rpm -qa | more
+    
+    #查看单独的软件包
+    rpm -q vim-common
+    
+    #安装新软件包
+    rpm -i vim-common#(新版本)
+    
+    #卸载软件包(包名)
+    rpm -e vim-common
+    ```
+
+    
+
+#### 3、yum仓库&yum包管理器
+
+
+
+- rpm包的问题
+  - 需要自己解决依赖关系
+  - 软件包来源不可靠
+- CentOS yum源
+  - http://mirror.centos.org/centos/7/
+- 国内镜像
+  - http://opsx.alibaba.com/mirror
+- yum配置文件
+  - /etc/yum.repos.d/CentOS-Base.repo
+  - wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+
+**更改镜像源**
+
+```bash
+[root@bogon chuzhi]# mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+[root@bogon chuzhi]# wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+```
+
+**更改完之后更新一下缓存**
+
+```bash
+[root@bogon chuzhi]# yum makecache
+```
+
+
+
+- 
+
+##### yum命令常用选项
+
+- install安装软件包
+
+```bash
+[root@bogon chuzhi]# yum install vim-enhanced
+```
+
+- remove 卸载软件包
+
+```bash
+[root@bogon chuzhi]# yum remove vim-enhanced
+```
+
+- list | grouplist 查看软件包
+- update 升级软件包
+
+```bash
+#更新yum仓库的新软件包
+[root@bogon chuzhi]# yum update
+```
+
+#### 4、源代码编译安装
+
+**安装流程：**
+
+- wget http://openresty.org/download/openresty-1.15.8.1.tar.gz
+- tar -zxf openresty-VERSION.tar.gz
+- cd openresty-VERSION/
+- ./configure --prefix=/usr/local/openresty（指定安装路径）
+- make -j2（使用两个逻辑cpu编译，加快速度）
+- make install
+
+
+
+
+
+#### 5、内核升级
+
+
+
+#### 6、grub配置文件
 
